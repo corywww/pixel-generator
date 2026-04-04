@@ -361,10 +361,10 @@ function LeftPanel({
             fg={fg} setFg={setFg} bg={bg} setBg={setBg}
           />
         </SectionGroup>
-        <SectionGroup label="Grid">
-          <Slider label="Size"    value={gridSize} min={4}  max={64} onChange={setGridSize} />
-          <Slider label="Cell px" value={cellSize} min={1}  max={32} onChange={setCellSize} />
-          <Slider label="Gap px"  value={gap}      min={0}  max={8}  onChange={setGap}      />
+        <SectionGroup label="Canvas">
+          <Slider label="Grid"       value={gridSize} min={4}  max={64} onChange={setGridSize} />
+          <Slider label="Pixel size" value={cellSize} min={1}  max={32} onChange={setCellSize} />
+          <Slider label="Gap"        value={gap}      min={0}  max={8}  onChange={setGap}      />
         </SectionGroup>
         <SectionGroup label="Animation" noBorder>
           <Slider label="FPS" value={fps} min={1} max={60} onChange={setFps} />

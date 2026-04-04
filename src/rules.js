@@ -239,10 +239,14 @@ const RULES = {
     return M.min(1, (b1+b2) * M.exp(-r*5.5) * 3.5)
   },
 
-  nebula: (x, y, t) => {
-    const n1 = noise3d(x*2, y*2, t*0.1)
-    const n2 = noise3d(x*4+2, y*4+2, t*0.15)
-    return M.pow(M.max(0, n1*0.6 + n2*0.4 - 0.2) / 0.8, 1.4)
+  supernova: (x, y, t) => {
+    const cx = x - 0.5, cy = y - 0.5
+    const r = M.sqrt(cx*cx + cy*cy)
+    const phase = (t * 0.5) % (M.PI * 2)
+    const expand = (1 - M.cos(phase)) * 0.5   // 0→1 over one cycle
+    const ring = M.exp(-M.pow((r - expand * 0.52) * 14, 2))
+    const core = M.exp(-r * 22) * M.pow(1 - expand, 2)
+    return M.min(1, ring * (1 - expand * 0.6) + core)
   },
 
   // Organic
@@ -740,7 +744,7 @@ export const PRESET_GROUPS = [
   { label: 'Cosmic', presets: [
     ['Stars', 'stars'], ['Meteor', 'meteor'], ['Binary Orbit', 'binary_orbit'],
     ['Aurora', 'aurora'], ['Shooting Star', 'shooting_star'], ['Black Hole', 'black_hole'],
-    ['Pulsar', 'pulsar'], ['Nebula', 'nebula'],
+    ['Pulsar', 'pulsar'], ['Supernova', 'supernova'],
   ]},
   { label: 'Organic', presets: [
     ['Pulse', 'pulse'], ['Fire', 'fire'], ['Heartbeat', 'heartbeat'],

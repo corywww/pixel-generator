@@ -19,7 +19,7 @@ export const DISPLAY_GROUPS = [
     ['Clock', 'clock'],
   ]},
   { label: 'Space', presets: [
-    ['Stars', 'stars'], ['Meteor', 'meteor'], ['Aurora', 'aurora'], ['Nebula', 'nebula'],
+    ['Stars', 'stars'], ['Meteor', 'meteor'], ['Aurora', 'aurora'], ['Supernova', 'supernova'],
     ['Pulsar', 'pulsar'], ['Black Hole', 'black_hole'], ['Binary', 'binary_orbit'], ['Comet', 'shooting_star'],
   ]},
   { label: 'Organic', presets: [
