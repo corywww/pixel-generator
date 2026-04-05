@@ -165,7 +165,7 @@ export function MobileLayout({
             <Slider label="Grid"       value={gridSize} min={4}  max={64} onChange={setGridSize} />
             <Slider label="Pixel size" value={cellSize} min={1}  max={32} onChange={setCellSize} />
             <Slider label="Gap"        value={gap}      min={0}  max={8}  onChange={setGap}      />
-            <Slider label="FPS"        value={fps}      min={1}  max={60} onChange={setFps}      />
+            <Slider label="FPS"        value={fps}      min={1}  max={60} onChange={setFps} />
           </SectionGroup>
 
           {/* Presets — always visible at default 50% height */}

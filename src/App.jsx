@@ -373,13 +373,11 @@ function LeftPanel({
             fg={fg} setFg={setFg} bg={bg} setBg={setBg}
           />
         </SectionGroup>
-        <SectionGroup label="Canvas">
+        <SectionGroup label="Canvas" noBorder>
           <Slider label="Grid"       value={gridSize} min={4}  max={64} onChange={setGridSize} />
           <Slider label="Pixel size" value={cellSize} min={1}  max={32} onChange={setCellSize} />
           <Slider label="Gap"        value={gap}      min={0}  max={8}  onChange={setGap}      />
-        </SectionGroup>
-        <SectionGroup label="Animation" noBorder>
-          <Slider label="FPS" value={fps} min={1} max={60} onChange={setFps} />
+          <Slider label="FPS"        value={fps}      min={1}  max={60} onChange={setFps}      />
         </SectionGroup>
       </div>
 
@@ -885,12 +883,9 @@ function useIsMobile(breakpoint = 768) {
 
 export function App() {
   const [gridSize,   setGridSize]   = useState(8)
-  // On mobile, default to a larger cell size so the canvas fills the screen nicely
-  const [cellSize,   setCellSize]   = useState(() =>
-    window.innerWidth <= 768 ? Math.max(8, Math.floor((window.innerWidth * 0.46) / 8)) : 8
-  )
-  const [gap,        setGap]        = useState(2)
-  const [fps,        setFps]        = useState(12)
+  const [cellSize,   setCellSize]   = useState(4)
+  const [gap,        setGap]        = useState(1)
+  const [fps,        setFps]        = useState(24)
   const [palette,    setPalette]    = useState('matrix')
   const [fg,         setFg]         = useState('#39d353')
   const [bg,         setBg]         = useState('#0d1117')
@@ -915,9 +910,9 @@ export function App() {
     p.set('preset', preset)
     p.set('palette', palette)
     if (gridSize !== 8)  p.set('size', gridSize)
-    if (cellSize !== 8)  p.set('cell', cellSize)
-    if (gap !== 2)       p.set('gap', gap)
-    if (fps !== 12)      p.set('fps', fps)
+    if (cellSize !== 4)  p.set('cell', cellSize)
+    if (gap !== 1)       p.set('gap', gap)
+    if (fps !== 24)      p.set('fps', fps)
     history.replaceState(null, '', '?' + p.toString())
   }, [preset, palette, gridSize, cellSize, gap, fps])
 
