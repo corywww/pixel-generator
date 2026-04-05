@@ -712,7 +712,8 @@ function ExportModal({ params, onClose }) {
         onClick={e => e.stopPropagation()}
         style={{
           width: 'min(85vw, 1400px)', maxWidth: 'calc(100vw - 32px)',
-          height: 'calc(100vh - 40px)',
+          height: 'calc(100vh - 40px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))',
+          marginTop: 'env(safe-area-inset-top, 0px)',
           background: PANEL.bg,
           backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
           border: `1px solid ${T.border}`,
@@ -833,7 +834,7 @@ function ExportModal({ params, onClose }) {
         {/* ── Footer / copy ── */}
         <div style={{
           flexShrink: 0,
-          padding: '10px 14px 14px',
+          padding: '10px 14px max(14px, env(safe-area-inset-bottom, 14px))',
           borderTop: `1px solid ${T.border}`,
           background: PANEL.bg,
           display: 'flex', gap: 8, alignItems: 'center',

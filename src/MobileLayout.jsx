@@ -1,12 +1,13 @@
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { useBottomSheet } from './useBottomSheet'
 import { PresetBrowser } from './PresetBrowser'
 import { PALETTES, T, PANEL, PaletteSection, Slider, SectionGroup } from './App'
 
-const PEEK_H = 90
+// Sheet starts at 50% of screen height showing presets
+// Drag up to ~90% to reveal colours + sliders
+// Drag down to a minimal 56px handle strip
 
-// ── MobileLayout ──────────────────────────────────────────────────────────────
-// Full-screen canvas + spring-animated bottom sheet.
+const PEEK_H = 56  // just handle + export button
 
 export function MobileLayout({
   canvasRef,
@@ -16,27 +17,26 @@ export function MobileLayout({
   onExport,
 }) {
   const windowH = window.innerHeight
-  const FULL_H  = windowH - 56
-  const MID_H   = Math.round(windowH * 0.48)
+  const FULL_H  = windowH - 56    // full sheet, leaves 56px for canvas + safe area
+  const MID_H   = Math.round(windowH * 0.50)  // 50% — presets visible
 
   const { sheetRef, bind, snapTo, snapIndex } = useBottomSheet({
-    peekHeight: PEEK_H,
-    midHeight:  MID_H,
-    fullHeight: FULL_H,
+    peekHeight:  PEEK_H,
+    midHeight:   MID_H,
+    fullHeight:  FULL_H,
+    defaultSnap: 1,   // start at 50%
   })
 
-  // Scale canvas CSS size to fill available space above the peek
-  const sizeCanvas = useRef(null)
+  // Scale canvas to fill the top area above the sheet's default position
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
-    const availW = window.innerWidth  - 48
-    const availH = windowH - PEEK_H  - 56
+    const availH = windowH - MID_H - 24
+    const availW = window.innerWidth - 32
     const size   = Math.min(availW, availH)
     canvas.style.width  = size + 'px'
     canvas.style.height = size + 'px'
-    sizeCanvas.current  = size
-  }, [canvasRef, windowH, PEEK_H])
+  }, [canvasRef, windowH, MID_H])
 
   return (
     <div style={{
@@ -46,26 +46,27 @@ export function MobileLayout({
       fontFamily: T.font,
       '--accent': fg,
       overflow: 'hidden',
-      touchAction: 'none',
     }}>
 
-      {/* ── Canvas area ── */}
+      {/* ── Canvas — top half ── */}
       <div style={{
         position: 'absolute',
         top: 0, left: 0, right: 0,
-        height: windowH - PEEK_H,
+        height: windowH - MID_H,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
         <canvas ref={canvasRef} style={{ imageRendering: 'pixelated' }} />
       </div>
 
-      {/* ── Attribution (top-right, stays above sheet) ── */}
+      {/* ── Attribution — top right ── */}
       <a
         href="https://www.corywilliams.com.au"
         target="_blank"
         rel="noopener noreferrer"
         style={{
-          position: 'absolute', top: 16, right: 16,
+          position: 'absolute',
+          top: 'max(16px, env(safe-area-inset-top, 16px))',
+          right: 16,
           zIndex: 5,
           display: 'flex', alignItems: 'center', gap: 5,
           padding: '5px 10px',
@@ -73,17 +74,11 @@ export function MobileLayout({
           border: `1px solid color-mix(in srgb, ${fg} 18%, transparent)`,
           borderRadius: 20,
           color: `color-mix(in srgb, ${fg} 50%, transparent)`,
-          fontSize: 10.5, fontFamily: T.font,
-          fontWeight: 500, letterSpacing: '-0.01em',
+          fontSize: 10, fontFamily: T.font, fontWeight: 500,
           textDecoration: 'none',
         }}
       >
         Made by Cory Williams
-        <svg width="9" height="9" viewBox="0 0 10 10" fill="none" style={{ opacity: 0.6 }}>
-          <path d="M4 2H2a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-          <path d="M6 1h3v3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-          <path d="M9 1L5 5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-        </svg>
       </a>
 
       {/* ── Bottom sheet ── */}
@@ -106,16 +101,15 @@ export function MobileLayout({
         }}
       >
 
-        {/* ── Drag handle + peek row ── */}
+        {/* ── Drag handle + export row ── */}
         <div
           {...bind()}
           style={{
             flexShrink: 0,
-            paddingTop: 10,
-            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10,
+            paddingTop: 10, paddingBottom: 10,
+            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
             cursor: 'grab', touchAction: 'none', userSelect: 'none',
             borderBottom: `1px solid ${T.border}`,
-            paddingBottom: 12,
           }}
         >
           {/* Handle bar */}
@@ -124,44 +118,27 @@ export function MobileLayout({
             background: 'rgba(255,255,255,0.2)',
           }} />
 
-          {/* Peek row: palette dots + active name + export */}
+          {/* Export + active preset name */}
           <div style={{
-            width: '100%',
-            display: 'flex', alignItems: 'center',
-            padding: '0 16px', gap: 8,
+            width: '100%', display: 'flex',
+            alignItems: 'center', justifyContent: 'space-between',
+            padding: '0 14px',
           }}>
-
-            {/* Palette dots */}
-            <div style={{ display: 'flex', gap: 7, flex: 1, flexWrap: 'nowrap' }}>
-              {Object.entries(PALETTES).map(([key, p]) => (
-                <button
-                  key={key}
-                  onPointerDown={e => e.stopPropagation()}
-                  onClick={e => { e.stopPropagation(); setPalette(key) }}
-                  style={{
-                    width: 22, height: 22, borderRadius: '50%',
-                    background: p.fg,
-                    border: palette === key
-                      ? '2.5px solid rgba(255,255,255,0.85)'
-                      : '2.5px solid transparent',
-                    cursor: 'pointer', padding: 0, flexShrink: 0,
-                    outline: 'none',
-                    transition: 'border-color 0.15s, transform 0.15s',
-                    transform: palette === key ? 'scale(1.18)' : 'scale(1)',
-                  }}
-                />
-              ))}
+            <div style={{
+              fontSize: 12, fontWeight: 500, color: T.textSub,
+              letterSpacing: '-0.01em',
+            }}>
+              {/* Show current preset name */}
+              {preset}
             </div>
-
-            {/* Export button */}
             <button
               onPointerDown={e => e.stopPropagation()}
               onClick={e => { e.stopPropagation(); onExport() }}
               style={{
-                height: 34, padding: '0 14px',
-                background: fg, border: 'none', borderRadius: 9,
-                color: bg, fontSize: 12, fontWeight: 600,
-                fontFamily: T.font, cursor: 'pointer', flexShrink: 0,
+                height: 32, padding: '0 14px',
+                background: fg, border: 'none', borderRadius: 8,
+                color: bg, fontSize: 11.5, fontWeight: 600,
+                fontFamily: T.font, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', gap: 5,
               }}
             >
@@ -175,37 +152,15 @@ export function MobileLayout({
           </div>
         </div>
 
-        {/* ── Scrollable sheet content ── */}
-        <div
-          style={{
-            flex: 1, overflowY: 'auto',
-            WebkitOverflowScrolling: 'touch',
-            // Allow scroll inside sheet without triggering sheet drag
-            touchAction: 'pan-y',
-          }}
-        >
-          {/* Tap anywhere on the peek to expand to mid */}
-          {snapIndex === 2 && (
-            <button
-              onClick={() => snapTo(1)}
-              style={{
-                width: '100%', height: 44,
-                background: 'none', border: 'none',
-                cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                gap: 6,
-                color: T.textMuted, fontSize: 11.5, fontFamily: T.font,
-                userSelect: 'none',
-              }}
-            >
-              <svg width="12" height="7" viewBox="0 0 12 7" fill="none">
-                <path d="M1 6L6 1L11 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              Tap to expand controls
-            </button>
-          )}
-
-          <SectionGroup label="Colours" defaultOpen={snapIndex < 2}>
+        {/* ── Scrollable content ── */}
+        <div style={{
+          flex: 1, overflowY: 'auto',
+          WebkitOverflowScrolling: 'touch',
+          touchAction: 'pan-y',
+          paddingBottom: 'env(safe-area-inset-bottom, 16px)',
+        }}>
+          {/* Colours + Canvas sliders — collapsed by default, expand by dragging up */}
+          <SectionGroup label="Colours" defaultOpen={false}>
             <PaletteSection
               palette={palette} setPalette={setPalette}
               fg={fg} setFg={setFg} bg={bg} setBg={setBg}
@@ -219,7 +174,8 @@ export function MobileLayout({
             <Slider label="FPS"        value={fps}      min={1}  max={60} onChange={setFps}      />
           </SectionGroup>
 
-          <SectionGroup label="Presets" noBorder defaultOpen={snapIndex === 0}>
+          {/* Presets — always visible at default 50% height */}
+          <SectionGroup label="Presets" noBorder defaultOpen>
             <PresetBrowser current={preset} onSelect={onSelectPreset} fg={fg} />
           </SectionGroup>
         </div>

@@ -166,91 +166,59 @@ export function PresetBrowser({ current, onSelect, fg = '#ffffff' }) {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div>
-      {DISPLAY_GROUPS.map(group => (
-        <div key={group.label} style={{ marginBottom: 4 }}>
-
-          {/* Group header */}
-          <div style={{
-            padding: '8px 12px 4px',
-            fontSize: 10.5,
-            fontWeight: 600,
-            letterSpacing: '0.06em',
-            textTransform: 'uppercase',
-            color: 'rgba(255,255,255,0.5)',
-            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-            userSelect: 'none',
-          }}>
-            {group.label}
+    <div style={{
+      display: 'grid',
+      gridTemplateColumns: 'repeat(4, 1fr)',
+      gap: 0,
+      padding: '4px 8px 8px',
+    }}>
+      {PRESET_ITEMS.map(({ label, key }) => {
+        const live    = key === current
+        const hovered = hoveredKey === key
+        return (
+          <div
+            key={key}
+            onClick={() => onSelect(key)}
+            onMouseEnter={() => setHoveredKey(key)}
+            onMouseLeave={() => setHoveredKey(null)}
+            style={{
+              cursor: 'pointer',
+              padding: '4px 4px 3px',
+              borderRadius: 5,
+              background: live
+                ? 'rgba(255,255,255,0.06)'
+                : hovered ? 'rgba(255,255,255,0.04)' : 'transparent',
+              outline: live
+                ? `1.5px solid ${fg}`
+                : hovered ? '1.5px solid rgba(255,255,255,0.22)' : '1.5px solid transparent',
+              outlineOffset: '-1px',
+              transition: 'background 0.1s, outline-color 0.1s',
+            }}
+          >
+            <canvas
+              ref={el => {
+                if (el) { el.width = THUMB; el.height = THUMB }
+                canvasRefs.current[key] = el
+              }}
+              style={{
+                display: 'block', width: '100%', aspectRatio: '1',
+                imageRendering: 'pixelated', borderRadius: 2,
+              }}
+            />
+            <div style={{
+              marginTop: 3, fontSize: 9.5,
+              fontWeight: live ? 600 : 400,
+              color: live ? fg : 'rgba(255,255,255,0.7)',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+              textAlign: 'center', whiteSpace: 'nowrap',
+              overflow: 'hidden', textOverflow: 'ellipsis',
+              letterSpacing: '-0.01em', lineHeight: 1.3, userSelect: 'none',
+            }}>
+              {label}
+            </div>
           </div>
-
-          {/* Grid — padded 12px each side to match header alignment */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: 0,
-            padding: '0 8px',
-          }}>
-            {group.presets.map(([label, key]) => {
-              const live = key === current
-              const hovered = hoveredKey === key
-              return (
-                <div
-                  key={key}
-                  onClick={() => onSelect(key)}
-                  onMouseEnter={() => setHoveredKey(key)}
-                  onMouseLeave={() => setHoveredKey(null)}
-                  style={{
-                    cursor: 'pointer',
-                    padding: '4px 4px 3px',
-                    borderRadius: 5,
-                    background: live
-                      ? 'rgba(255,255,255,0.06)'
-                      : hovered ? 'rgba(255,255,255,0.04)' : 'transparent',
-                    outline: live
-                      ? `1.5px solid ${fg}`
-                      : hovered ? '1.5px solid rgba(255,255,255,0.22)' : '1.5px solid transparent',
-                    outlineOffset: '-1px',
-                    transition: 'background 0.1s, outline-color 0.1s',
-                  }}
-                >
-                  {/* Pixel canvas */}
-                  <canvas
-                    ref={el => {
-                      if (el) { el.width = THUMB; el.height = THUMB }
-                      canvasRefs.current[key] = el
-                    }}
-                    style={{
-                      display: 'block',
-                      width: '100%',
-                      aspectRatio: '1',
-                      imageRendering: 'pixelated',
-                      borderRadius: 2,
-                    }}
-                  />
-                  {/* Label */}
-                  <div style={{
-                    marginTop: 3,
-                    fontSize: 9.5,
-                    fontWeight: live ? 600 : 400,
-                    color: live ? fg : 'rgba(255,255,255,0.7)',
-                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-                    textAlign: 'center',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    letterSpacing: '-0.01em',
-                    lineHeight: 1.3,
-                    userSelect: 'none',
-                  }}>
-                    {label}
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      ))}
+        )
+      })}
     </div>
   )
 }

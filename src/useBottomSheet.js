@@ -4,17 +4,17 @@ import { useDrag } from '@use-gesture/react'
 const STIFFNESS = 300
 const DAMPING   = 30
 
-export function useBottomSheet({ peekHeight, midHeight, fullHeight }) {
+export function useBottomSheet({ peekHeight, midHeight, fullHeight, defaultSnap = 2 }) {
   const sheetRef      = useRef(null)
-  const posRef        = useRef(peekHeight)   // px from bottom of screen
-  const velRef        = useRef(0)             // px / second
-  const targetRef     = useRef(peekHeight)
+  const snapPoints    = [fullHeight, midHeight, peekHeight]
+  const initPos       = snapPoints[defaultSnap]
+  const posRef        = useRef(initPos)
+  const velRef        = useRef(0)
+  const targetRef     = useRef(initPos)
   const rafRef        = useRef(null)
   const lastTsRef     = useRef(null)
   const dragStartRef  = useRef(0)
-  const [snapIndex, setSnapIndex] = useState(2) // 0=full, 1=mid, 2=peek
-
-  const snapPoints = [fullHeight, midHeight, peekHeight]
+  const [snapIndex, setSnapIndex] = useState(defaultSnap)
 
   // Write transform directly to the DOM — no React re-render during animation
   const applyTransform = useCallback((pos) => {
@@ -62,11 +62,9 @@ export function useBottomSheet({ peekHeight, midHeight, fullHeight }) {
     startSpring()
   }, [startSpring, fullHeight, midHeight, peekHeight]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Start at peek
+  // Start at defaultSnap position
   useEffect(() => {
-    posRef.current   = peekHeight
-    targetRef.current = peekHeight
-    applyTransform(peekHeight)
+    applyTransform(initPos)
     return stopRaf
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
