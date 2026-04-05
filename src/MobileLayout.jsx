@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import { useBottomSheet } from './useBottomSheet'
 import { PresetBrowser } from './PresetBrowser'
 import { PALETTES, T, PANEL, PaletteSection, Slider, SectionGroup } from './App'
@@ -16,27 +15,17 @@ export function MobileLayout({
   preset, onSelectPreset, expression, setExpression,
   onExport,
 }) {
-  const windowH = window.innerHeight
-  const FULL_H  = windowH - 56    // full sheet, leaves 56px for canvas + safe area
-  const MID_H   = Math.round(windowH * 0.50)  // 50% — presets visible
+  const windowH     = window.innerHeight
+  const FULL_H      = windowH - 56
+  const MID_H       = Math.round(windowH * 0.50)
+  const CANVAS_SIZE = Math.min(window.innerWidth - 32, windowH - MID_H - 24)
 
   const { sheetRef, bind, snapTo, snapIndex } = useBottomSheet({
     peekHeight:  PEEK_H,
     midHeight:   MID_H,
     fullHeight:  FULL_H,
-    defaultSnap: 1,   // start at 50%
+    defaultSnap: 1,
   })
-
-  // Scale canvas to fill the top area above the sheet's default position
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const availH = windowH - MID_H - 24
-    const availW = window.innerWidth - 32
-    const size   = Math.min(availW, availH)
-    canvas.style.width  = size + 'px'
-    canvas.style.height = size + 'px'
-  }, [canvasRef, windowH, MID_H])
 
   return (
     <div style={{
@@ -55,7 +44,13 @@ export function MobileLayout({
         height: windowH - MID_H,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
-        <canvas ref={canvasRef} style={{ imageRendering: 'pixelated' }} />
+        {/* Wrapper div holds the display size so canvas.width attribute changes don't break sizing */}
+        <div style={{ width: CANVAS_SIZE, height: CANVAS_SIZE, flexShrink: 0 }}>
+          <canvas ref={canvasRef} style={{
+            display: 'block', width: '100%', height: '100%',
+            imageRendering: 'pixelated',
+          }} />
+        </div>
       </div>
 
       {/* ── Attribution — top right ── */}
@@ -125,11 +120,17 @@ export function MobileLayout({
             padding: '0 14px',
           }}>
             <div style={{
-              fontSize: 12, fontWeight: 500, color: T.textSub,
-              letterSpacing: '-0.01em',
+              fontSize: 13, fontWeight: 600, color: T.text,
+              letterSpacing: '-0.02em',
+              display: 'flex', alignItems: 'center', gap: 7,
             }}>
-              {/* Show current preset name */}
-              {preset}
+              <svg width="14" height="14" viewBox="0 0 4 4" style={{ flexShrink: 0 }}>
+                <rect x="0"   y="0"   width="1.7" height="1.7" fill={fg} opacity="1"  />
+                <rect x="2.3" y="0"   width="1.7" height="1.7" fill={fg} opacity="0.5"/>
+                <rect x="0"   y="2.3" width="1.7" height="1.7" fill={fg} opacity="0.3"/>
+                <rect x="2.3" y="2.3" width="1.7" height="1.7" fill={fg} opacity="0.8"/>
+              </svg>
+              Pixel Generator
             </div>
             <button
               onPointerDown={e => e.stopPropagation()}
