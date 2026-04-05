@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { MobileLayout } from './MobileLayout'
 import { usePixelGrid } from './usePixelGrid'
 import { PresetBrowser, DISPLAY_GROUPS } from './PresetBrowser'
 import { generateSnippet, PIXEL_ART_KEYS } from './generateSnippet'
@@ -8,7 +9,7 @@ const PRESET_FLAT = DISPLAY_GROUPS.flatMap(g => g.presets.map(([, key]) => key))
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
 
-const T = {
+export const T = {
   sidebar:   '#141517',
   surface:   '#252729',
   border:    'rgba(255,255,255,0.13)',
@@ -22,7 +23,7 @@ const T = {
 
 // ── Palettes ──────────────────────────────────────────────────────────────────
 
-const PALETTES = {
+export const PALETTES = {
   matrix:   { label: 'Matrix',   fg: '#39d353', bg: '#0d1117' },
   void:     { label: 'Void',     fg: '#ffffff', bg: '#0a0a0a' },
   paper:    { label: 'Paper',    fg: '#2d2d2d', bg: '#f0ece0' },
@@ -90,6 +91,17 @@ select { cursor: pointer; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  html, body { overscroll-behavior: none; touch-action: none; }
+
+  input[type=range] { height: 44px; padding: 14px 0; }
+  input[type=range]::-webkit-slider-thumb {
+    width: 20px; height: 20px; margin-top: -8.5px;
+  }
+  input[type=range]::-moz-range-thumb { width: 20px; height: 20px; }
+}
 `
 
 function GlobalStyles() {
@@ -132,7 +144,7 @@ function Row({ label, children }) {
 
 // ── SectionGroup (collapsible) ────────────────────────────────────────────────
 
-function SectionGroup({ label, noBorder, defaultOpen = true, children }) {
+export function SectionGroup({ label, noBorder, defaultOpen = true, children }) {
   const [open, setOpen] = useState(defaultOpen)
   return (
     <div style={{ borderBottom: noBorder ? 'none' : `1px solid ${T.border}` }}>
@@ -168,7 +180,7 @@ function SectionGroup({ label, noBorder, defaultOpen = true, children }) {
 
 // ── Slider ────────────────────────────────────────────────────────────────────
 
-function Slider({ label, value, min, max, step = 1, onChange }) {
+export function Slider({ label, value, min, max, step = 1, onChange }) {
   const pct = ((value - min) / (max - min) * 100).toFixed(1) + '%'
   return (
     <Row label={label}>
@@ -231,7 +243,7 @@ function HexInput({ label, value, onChange }) {
 
 // ── PaletteSection (6 thumbnail swatches + custom expand) ─────────────────────
 
-function PaletteSection({ palette, setPalette, fg, setFg, bg, setBg }) {
+export function PaletteSection({ palette, setPalette, fg, setFg, bg, setBg }) {
   const [customOpen, setCustomOpen] = useState(false)
   const keys = Object.keys(PALETTES)
 
@@ -303,7 +315,7 @@ function PaletteSection({ palette, setPalette, fg, setFg, bg, setBg }) {
 
 // ── Shared floating panel style ───────────────────────────────────────────────
 
-const PANEL = {
+export const PANEL = {
   bg:     'rgba(18, 19, 23, 0.96)',
   radius: 14,
 }
@@ -855,6 +867,19 @@ function ExportModal({ params, onClose }) {
   )
 }
 
+// ── useIsMobile ───────────────────────────────────────────────────────────────
+
+function useIsMobile(breakpoint = 768) {
+  const [mobile, setMobile] = useState(() => window.innerWidth <= breakpoint)
+  useEffect(() => {
+    const mq = window.matchMedia(`(max-width: ${breakpoint}px)`)
+    const handler = e => setMobile(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [breakpoint])
+  return mobile
+}
+
 // ── App ───────────────────────────────────────────────────────────────────────
 
 export function App() {
@@ -914,96 +939,115 @@ export function App() {
     return () => window.removeEventListener('keydown', onKey, { capture: true })
   }, [])
 
+  const isMobile  = useIsMobile()
   const canvasRef = usePixelGrid({ gridSize, fps, cellSize, gap, fg, bg, preset, expression })
+
+  const sharedProps = {
+    canvasRef,
+    gridSize, setGridSize, cellSize, setCellSize, gap, setGap,
+    fps, setFps, palette, setPalette, fg, setFg, bg, setBg,
+    preset, onSelectPreset: setPreset,
+    expression, setExpression,
+    onExport: () => setExportOpen(true),
+  }
 
   return (
     <>
       <GlobalStyles />
-      <div style={{
-        position: 'relative', width: '100vw', height: '100vh',
-        overflow: 'hidden', background: bg,
-        transition: 'background 0.35s ease',
-        fontFamily: T.font, '--accent': fg,
-      }}>
 
-
-        {/* Canvas */}
-        <canvas ref={canvasRef} style={{
-          position: 'absolute', top: '50%', left: '50%',
-          transform: 'translate(-50%, -50%)',
-          imageRendering: 'pixelated',
-        }} />
-
-        {/* Left column — single panel with export pinned inside */}
+      {isMobile ? (
+        <>
+          <MobileLayout {...sharedProps} />
+          {exportOpen && (
+            <ExportModal
+              params={{ preset, gridSize, cellSize, gap, fps, fg, bg, expression }}
+              onClose={() => setExportOpen(false)}
+            />
+          )}
+        </>
+      ) : (
         <div style={{
-          position: 'absolute', top: 16, left: 16,
-          width: 288,
-          height: 'calc(100vh - 32px)',
-          display: 'flex', flexDirection: 'column',
-          zIndex: 10,
-          pointerEvents: 'none',
+          position: 'relative', width: '100vw', height: '100vh',
+          overflow: 'hidden', background: bg,
+          transition: 'background 0.35s ease',
+          fontFamily: T.font, '--accent': fg,
         }}>
-          <LeftPanel
-            gridSize={gridSize}     setGridSize={setGridSize}
-            cellSize={cellSize}     setCellSize={setCellSize}
-            gap={gap}               setGap={setGap}
-            fps={fps}               setFps={setFps}
-            palette={palette}       setPalette={setPalette}
-            fg={fg}                 setFg={setFg}
-            bg={bg}                 setBg={setBg}
-            preset={preset}         onSelectPreset={setPreset}
-            expression={expression} setExpression={setExpression}
-            onExport={() => setExportOpen(true)}
-          />
+
+          {/* Canvas */}
+          <canvas ref={canvasRef} style={{
+            position: 'absolute', top: '50%', left: '50%',
+            transform: 'translate(-50%, -50%)',
+            imageRendering: 'pixelated',
+          }} />
+
+          {/* Left panel */}
+          <div style={{
+            position: 'absolute', top: 16, left: 16,
+            width: 288, height: 'calc(100vh - 32px)',
+            display: 'flex', flexDirection: 'column',
+            zIndex: 10, pointerEvents: 'none',
+          }}>
+            <LeftPanel
+              gridSize={gridSize}     setGridSize={setGridSize}
+              cellSize={cellSize}     setCellSize={setCellSize}
+              gap={gap}               setGap={setGap}
+              fps={fps}               setFps={setFps}
+              palette={palette}       setPalette={setPalette}
+              fg={fg}                 setFg={setFg}
+              bg={bg}                 setBg={setBg}
+              preset={preset}         onSelectPreset={setPreset}
+              expression={expression} setExpression={setExpression}
+              onExport={() => setExportOpen(true)}
+            />
+          </div>
+
+          {/* Attribution */}
+          <a
+            href="https://www.corywilliams.com.au"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              position: 'absolute', bottom: 16, right: 16,
+              zIndex: 10,
+              display: 'flex', alignItems: 'center', gap: 6,
+              padding: '6px 12px',
+              background: `color-mix(in srgb, ${fg} 8%, transparent)`,
+              border: `1px solid color-mix(in srgb, ${fg} 18%, transparent)`,
+              borderRadius: 20,
+              color: `color-mix(in srgb, ${fg} 50%, transparent)`,
+              fontSize: 11, fontFamily: T.font,
+              fontWeight: 500, letterSpacing: '-0.01em',
+              textDecoration: 'none',
+              transition: 'color 0.15s, background 0.15s, border-color 0.15s',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.color = fg
+              e.currentTarget.style.background = `color-mix(in srgb, ${fg} 14%, transparent)`
+              e.currentTarget.style.borderColor = `color-mix(in srgb, ${fg} 35%, transparent)`
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.color = `color-mix(in srgb, ${fg} 50%, transparent)`
+              e.currentTarget.style.background = `color-mix(in srgb, ${fg} 8%, transparent)`
+              e.currentTarget.style.borderColor = `color-mix(in srgb, ${fg} 18%, transparent)`
+            }}
+          >
+            Made by Cory Williams
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style={{ opacity: 0.6 }}>
+              <path d="M4 2H2a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+              <path d="M6 1h3v3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M9 1L5 5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+            </svg>
+          </a>
+
+          {/* Export modal */}
+          {exportOpen && (
+            <ExportModal
+              params={{ preset, gridSize, cellSize, gap, fps, fg, bg, expression }}
+              onClose={() => setExportOpen(false)}
+            />
+          )}
         </div>
-
-        {/* Attribution — uses palette fg/bg so it's always legible */}
-        <a
-          href="https://www.corywilliams.com.au"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            position: 'absolute', bottom: 16, right: 16,
-            zIndex: 10,
-            display: 'flex', alignItems: 'center', gap: 6,
-            padding: '6px 12px',
-            background: `color-mix(in srgb, ${fg} 8%, transparent)`,
-            border: `1px solid color-mix(in srgb, ${fg} 18%, transparent)`,
-            borderRadius: 20,
-            color: `color-mix(in srgb, ${fg} 50%, transparent)`,
-            fontSize: 11, fontFamily: T.font,
-            fontWeight: 500, letterSpacing: '-0.01em',
-            textDecoration: 'none',
-            transition: 'color 0.15s, background 0.15s, border-color 0.15s',
-          }}
-          onMouseEnter={e => {
-            e.currentTarget.style.color = fg
-            e.currentTarget.style.background = `color-mix(in srgb, ${fg} 14%, transparent)`
-            e.currentTarget.style.borderColor = `color-mix(in srgb, ${fg} 35%, transparent)`
-          }}
-          onMouseLeave={e => {
-            e.currentTarget.style.color = `color-mix(in srgb, ${fg} 50%, transparent)`
-            e.currentTarget.style.background = `color-mix(in srgb, ${fg} 8%, transparent)`
-            e.currentTarget.style.borderColor = `color-mix(in srgb, ${fg} 18%, transparent)`
-          }}
-        >
-          Made by Cory Williams
-          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style={{ opacity: 0.6 }}>
-            <path d="M4 2H2a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-            <path d="M6 1h3v3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M9 1L5 5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-          </svg>
-        </a>
-
-        {/* Export modal */}
-        {exportOpen && (
-          <ExportModal
-            params={{ preset, gridSize, cellSize, gap, fps, fg, bg, expression }}
-            onClose={() => setExportOpen(false)}
-          />
-        )}
-
-      </div>
+      )}
     </>
   )
 }
