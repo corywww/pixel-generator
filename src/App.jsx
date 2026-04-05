@@ -885,7 +885,10 @@ function useIsMobile(breakpoint = 768) {
 
 export function App() {
   const [gridSize,   setGridSize]   = useState(8)
-  const [cellSize,   setCellSize]   = useState(8)
+  // On mobile, default to a larger cell size so the canvas fills the screen nicely
+  const [cellSize,   setCellSize]   = useState(() =>
+    window.innerWidth <= 768 ? Math.max(8, Math.floor((window.innerWidth * 0.46) / 8)) : 8
+  )
   const [gap,        setGap]        = useState(2)
   const [fps,        setFps]        = useState(12)
   const [palette,    setPalette]    = useState('matrix')

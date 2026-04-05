@@ -15,10 +15,9 @@ export function MobileLayout({
   preset, onSelectPreset, expression, setExpression,
   onExport,
 }) {
-  const windowH     = window.innerHeight
-  const FULL_H      = windowH - 56
-  const MID_H       = Math.round(windowH * 0.50)
-  const CANVAS_SIZE = Math.min(window.innerWidth - 32, windowH - MID_H - 24)
+  const windowH = window.innerHeight
+  const FULL_H  = windowH - 56
+  const MID_H   = Math.round(windowH * 0.50)
 
   const { sheetRef, bind, snapTo, snapIndex } = useBottomSheet({
     peekHeight:  PEEK_H,
@@ -44,13 +43,7 @@ export function MobileLayout({
         height: windowH - MID_H,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
-        {/* Wrapper div holds the display size so canvas.width attribute changes don't break sizing */}
-        <div style={{ width: CANVAS_SIZE, height: CANVAS_SIZE, flexShrink: 0 }}>
-          <canvas ref={canvasRef} style={{
-            display: 'block', width: '100%', height: '100%',
-            imageRendering: 'pixelated',
-          }} />
-        </div>
+        <canvas ref={canvasRef} style={{ imageRendering: 'pixelated' }} />
       </div>
 
       {/* ── Attribution — top right ── */}
