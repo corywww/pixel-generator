@@ -37,7 +37,7 @@ export const DISPLAY_GROUPS = [
   ]},
   { label: 'Loaders', presets: [
     ['Dots', 'dots_wave'], ['Equalizer', 'equalizer'], ['Checker', 'checker_wave'],
-    ['Digital', 'matrix'], ['Binary', 'binary_count'], ['Bounce', 'bouncing_ball'], ['Rip Grid', 'ripple_grid'],
+    ['Binary', 'binary_count'], ['Bounce', 'bouncing_ball'], ['Rip Grid', 'ripple_grid'],
     ['Orbit', 'orbit_loader'],
   ]},
   { label: 'Pixel Art', presets: [

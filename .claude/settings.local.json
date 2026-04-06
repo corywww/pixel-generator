@@ -4,7 +4,29 @@
       "Bash(npm install:*)",
       "mcp__Claude_Preview__preview_start",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5173)",
-      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5174)"
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5174)",
+      "Bash(gh auth:*)",
+      "Bash(git push:*)",
+      "WebFetch(domain:pixel-generator.corywilliams.com.au)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "WebFetch(domain:dnschecker.org)",
+      "WebFetch(domain:mxtoolbox.com)",
+      "Bash(nslookup -type=NS corywilliams.com.au 8.8.8.8)",
+      "Bash(nslookup pixel-generator.corywilliams.com.au 8.8.8.8)",
+      "Bash(node -e \"require\\(''''canvas''''\\)\")",
+      "Bash(npx --yes puppeteer --version)",
+      "Read(//usr/local/bin/**)",
+      "Read(//Users/corywilliams/.nvm/versions/**)",
+      "Read(//opt/homebrew/bin/**)",
+      "Bash(/usr/local/bin/node --version)",
+      "Bash(/usr/local/bin/node -e \"require\\(''canvas''\\); console.log\\(''canvas ok''\\)\")",
+      "Bash(/usr/local/bin/node -e \":*)",
+      "Bash(/usr/local/bin/npx puppeteer:*)",
+      "Bash(PATH=\"/usr/local/bin:$PATH\" /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --headless=new --screenshot=/Users/corywilliams/Sites/pixel-loading/public/og-image.png --window-size=1200,630 --hide-scrollbars --no-sandbox \"http://localhost:9876/og-card.html\")",
+      "Bash(PATH=\"/usr/local/bin:$PATH\" npm install @use-gesture/react)",
+      "Bash(PATH=\"/usr/local/bin:$PATH\" npm run build)",
+      "Bash(git -C /Users/corywilliams/Sites/pixel-loading/.claude/worktrees/keen-gauss log --oneline -10)"
     ]
   }
 }

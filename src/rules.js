@@ -763,7 +763,7 @@ export const PRESET_GROUPS = [
   ]},
   { label: 'Loaders', presets: [
     ['Checker Wave', 'checker_wave'], ['Equalizer', 'equalizer'],
-    ['Binary Count', 'binary_count'], ['Matrix Rain', 'matrix'],
+    ['Binary Count', 'binary_count'],
     ['Ripple Grid', 'ripple_grid'], ['Bouncing Ball', 'bouncing_ball'],
     ['Spinner', 'spinner'], ['Dots Wave', 'dots_wave'], ['Orbit Loader', 'orbit_loader'],
   ]},
