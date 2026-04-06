@@ -157,7 +157,7 @@ export function generateSnippet({ preset, gridSize, cellSize, gap, fps, fg, bg, 
   const html = `<canvas id="${id}" width="${dim}" height="${dim}" style="image-rendering:pixelated"></canvas>`
 
   const js = `/* pixel loading — ${label}
-   https://github.com/your-handle/pixel-loading  ← update this
+   https://github.com/corywww/pixel-generator
    MIT licence — free to use and modify */
 ;(function () {
   const canvas = document.getElementById('${id}')
