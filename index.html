@@ -64,6 +64,12 @@
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
       body { overflow: hidden; background: #0d1117; }
     </style>
+    <script>
+      // Apply palette background before React loads to avoid flash
+      var bg = { matrix:'#0d1117', void:'#0a0a0a', paper:'#f0ece0', slate:'#edf1f7', amber:'#130f00', sepia:'#100e08', phosphor:'#001219', crimson:'#130008', neon:'#0d0010' }
+      var p = new URLSearchParams(location.search).get('palette')
+      if (p && bg[p]) document.body.style.background = bg[p]
+    </script>
   </head>
   <body>
     <div id="root"></div>
