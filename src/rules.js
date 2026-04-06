@@ -763,7 +763,7 @@ export const PRESET_GROUPS = [
   ]},
   { label: 'Loaders', presets: [
     ['Checker Wave', 'checker_wave'], ['Equalizer', 'equalizer'],
-    ['Binary Count', 'binary_count'], ['Matrix Rain', 'matrix'],
+    ['Binary Count', 'binary_count'],
     ['Ripple Grid', 'ripple_grid'], ['Bouncing Ball', 'bouncing_ball'],
     ['Spinner', 'spinner'], ['Dots Wave', 'dots_wave'], ['Orbit Loader', 'orbit_loader'],
   ]},
@@ -776,10 +776,6 @@ export const PRESET_GROUPS = [
     ['Custom', 'custom'],
   ]},
 ]
-
-export const PRESET_OPTIONS = Object.fromEntries(
-  PRESET_GROUPS.flatMap(g => g.presets)
-)
 
 export function getRule(preset, expression) {
   if (preset !== 'custom') return RULES[preset] ?? RULES.wave
