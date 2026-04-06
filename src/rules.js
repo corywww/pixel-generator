@@ -777,10 +777,6 @@ export const PRESET_GROUPS = [
   ]},
 ]
 
-export const PRESET_OPTIONS = Object.fromEntries(
-  PRESET_GROUPS.flatMap(g => g.presets)
-)
-
 export function getRule(preset, expression) {
   if (preset !== 'custom') return RULES[preset] ?? RULES.wave
   return buildCustomRule(expression)
