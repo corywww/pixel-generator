@@ -49,8 +49,6 @@ export function MobileLayout({
       {/* ── Attribution — top right ── */}
       <a
         href="https://www.corywilliams.com.au"
-        target="_blank"
-        rel="noopener noreferrer"
         style={{
           position: 'absolute',
           top: 'max(16px, env(safe-area-inset-top, 16px))',

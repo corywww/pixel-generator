@@ -1003,8 +1003,6 @@ export function App() {
           {/* Attribution */}
           <a
             href="https://www.corywilliams.com.au"
-            target="_blank"
-            rel="noopener noreferrer"
             style={{
               position: 'absolute', bottom: 16, right: 16,
               zIndex: 10,
